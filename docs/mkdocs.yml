@@ -1,5 +1,6 @@
 site_name: Python Geospatial Engineering Practices
 site_description: A practical prep curriculum for senior Python engineers
+docs_dir: content
 theme:
   name: material
   palette:
