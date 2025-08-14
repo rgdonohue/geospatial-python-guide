@@ -11,7 +11,8 @@ class MkDocsConverter:
     def __init__(self, src_dir="src", output_dir="docs"):
         self.src_dir = Path(src_dir)
         self.output_dir = Path(output_dir)
-        self.docs_dir = self.output_dir / "docs"
+        # Align with MkDocs docs_dir used by the site (content/)
+        self.docs_dir = self.output_dir / "content"
         
     def setup_mkdocs_structure(self):
         """Create the MkDocs directory structure."""
@@ -29,6 +30,7 @@ class MkDocsConverter:
         config = {
             'site_name': 'Python Geospatial Engineering Practices',
             'site_description': 'A practical prep curriculum for senior Python engineers',
+            'docs_dir': 'content',
             'theme': {
                 'name': 'material',
                 'palette': [
@@ -48,10 +50,6 @@ class MkDocsConverter:
                 {'mkdocstrings': {
                     'handlers': {
                         'python': {
-                            'setup_commands': [
-                                'import sys, os',
-                                'sys.path.insert(0, os.path.abspath(".."))',
-                            ],
                             'options': {
                                 'show_source': True,
                                 'show_root_heading': True,
@@ -360,15 +358,16 @@ import {proto_file.stem}_pb2_grpc
 
         print(f"✅ Created {index_path}")
 
-        plan_src = Path("docs/PLAN.md")
-        if plan_src.exists():
-            plan_dest = self.docs_dir / "study_plan.md"
-            with open(plan_src, 'r') as fsrc, open(plan_dest, 'w') as fdst:
-                fdst.write(fsrc.read())
-            print(f"✅ Created {plan_dest}")
+        # Prefer the repo plan under dev-docs/, fallback to docs/PLAN.md, then placeholder
+        plan_candidates = [Path("dev-docs/PLAN.md"), Path("docs/PLAN.md")]
+        plan_dest = self.docs_dir / "study_plan.md"
+        for plan_src in plan_candidates:
+            if plan_src.exists():
+                with open(plan_src, 'r') as fsrc, open(plan_dest, 'w') as fdst:
+                    fdst.write(fsrc.read())
+                print(f"✅ Created {plan_dest} from {plan_src}")
+                break
         else:
-            # Fallback if PLAN.md doesn't exist
-            plan_dest = self.docs_dir / "study_plan.md"
             with open(plan_dest, 'w') as fdst:
                 fdst.write("# Study Plan\n\nStudy plan content will be generated here.")
             print(f"✅ Created fallback {plan_dest}")
@@ -525,7 +524,7 @@ pymdown-extensions>=10.0
         print(f"✅ Created {req_path}")
     
     def create_github_action(self):
-        """Create GitHub Action for automatic deployment."""
+        """Create GitHub Action for automatic deployment (root-level)."""
         action_content = """name: Deploy to GitHub Pages
 
 on:
@@ -543,23 +542,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
-      
+          python-version: '3.11'
+
       - name: Install dependencies
+        working-directory: ./docs
         run: |
           pip install -r requirements.txt
-      
+
       - name: Build site
-        run: mkdocs build
-      
+        working-directory: ./docs
+        run: mkdocs build --strict
+
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: ./site
+          path: ./docs/site
   
   deploy:
     environment:
@@ -570,17 +573,18 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
 """
-        
-        action_dir = self.output_dir / ".github" / "workflows"
+        # Write to repo root .github/workflows, but do not overwrite if it already exists
+        action_dir = Path(".github") / "workflows"
         action_dir.mkdir(parents=True, exist_ok=True)
         action_path = action_dir / "deploy.yml"
-        
-        with open(action_path, 'w') as f:
-            f.write(action_content)
-        
-        print(f"✅ Created GitHub Action")
+        if not action_path.exists():
+            with open(action_path, 'w') as f:
+                f.write(action_content)
+            print(f"✅ Created GitHub Action at {action_path}")
+        else:
+            print(f"ℹ️  Skipped GitHub Action creation; {action_path} already exists")
     
     def create_api_pages(self):
         """Create mkdocstrings-backed API pages for key modules."""
