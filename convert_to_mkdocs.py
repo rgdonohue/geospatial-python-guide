@@ -358,19 +358,8 @@ import {proto_file.stem}_pb2_grpc
 
         print(f"✅ Created {index_path}")
 
-        # Prefer the repo plan under dev-docs/, fallback to docs/PLAN.md, then placeholder
-        plan_candidates = [Path("dev-docs/PLAN.md"), Path("docs/PLAN.md")]
-        plan_dest = self.docs_dir / "study_plan.md"
-        for plan_src in plan_candidates:
-            if plan_src.exists():
-                with open(plan_src, 'r') as fsrc, open(plan_dest, 'w') as fdst:
-                    fdst.write(fsrc.read())
-                print(f"✅ Created {plan_dest} from {plan_src}")
-                break
-        else:
-            with open(plan_dest, 'w') as fdst:
-                fdst.write("# Study Plan\n\nStudy plan content will be generated here.")
-            print(f"✅ Created fallback {plan_dest}")
+        # Generate study plan with links to modules
+        self.create_study_plan()
     
     def create_extra_files(self):
         """Create CSS and JS files for enhanced styling."""
@@ -603,6 +592,87 @@ jobs:
         #     f.write('::: src.day03_api.app\n')
 
         print("✅ API pages temporarily disabled")
+
+    def create_study_plan(self):
+        """Create a comprehensive study plan with links to each module."""
+        plan_dest = self.docs_dir / "study_plan.md"
+        
+        # Start with the base content from PLAN.md if it exists
+        base_content = ""
+        plan_candidates = [Path("dev-docs/PLAN.md"), Path("docs/PLAN.md")]
+        for plan_src in plan_candidates:
+            if plan_src.exists():
+                with open(plan_src, 'r') as f:
+                    base_content = f.read()
+                print(f"✅ Using base content from {plan_src}")
+                break
+        
+        # If no base content, create a basic structure
+        if not base_content:
+            base_content = """# Study Plan
+
+A 7‑day plan to build production‑ready skills for software engineering with geospatial data. Each day links to an overview page in this site and to the runnable code modules in the repository.
+
+## Prerequisites
+- Python 3.11+
+- Create a virtualenv and install deps: `python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt`
+- Project code lives under `src/` with one folder per day; docs live under `docs/content/`
+
+---
+
+"""
+        
+        # Generate module links section
+        module_links = "\n## Training Modules\n\n"
+        
+        for day_dir in sorted(self.src_dir.glob("day*")):
+            if day_dir.is_dir():
+                day_name = day_dir.name
+                day_num = day_name.split('_')[0].replace('day', 'Day ')
+                topic = ' '.join(day_name.split('_')[1:]).title()
+                
+                # Create links to both the docs page and the source code
+                module_links += f"### {day_num} – {topic}\n"
+                module_links += f"- **Overview**: [{day_num}]({day_name}/index.md)\n"
+                module_links += f"- **Code**: [src/{day_name}](https://github.com/rgdonohue/geospatial-python-guide/tree/main/src/{day_name})\n"
+                
+                # Add description from the module's README if it exists
+                readme_path = day_dir / "README.md"
+                if readme_path.exists():
+                    with open(readme_path, 'r') as f:
+                        readme_content = f.read()
+                        # Extract first paragraph or description
+                        lines = readme_content.split('\n')
+                        description = ""
+                        for line in lines:
+                            if line.strip() and not line.startswith('#') and not line.startswith('```'):
+                                description = line.strip()
+                                break
+                        if description:
+                            module_links += f"- **Description**: {description}\n"
+                
+                module_links += "\n"
+        
+        # Combine base content with generated module links
+        full_content = base_content + module_links
+        
+        # Add footer
+        full_content += """## Getting Started
+
+1. **Clone and setup**: `git clone <repo> && cd geospatial-python-guide`
+2. **Install dependencies**: `cd docs && pip install -r requirements.txt`
+3. **View docs locally**: `mkdocs serve`
+4. **Start with Day 1**: Begin with the concurrency module and work through each day
+
+## Contributing
+
+Found an issue or have an improvement? Open a PR or issue on GitHub.
+"""
+        
+        with open(plan_dest, 'w') as f:
+            f.write(full_content)
+        
+        print(f"✅ Created comprehensive {plan_dest} with module links")
 
     def run(self):
         """Execute the conversion."""
