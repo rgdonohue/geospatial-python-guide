@@ -1,6 +1,6 @@
 # Day 07 - Mock
 
-## Graduate-Level Learning Objectives
+## Learning Objectives
 
 This capstone project synthesizes all concepts from the previous modules into a comprehensive enterprise-grade geospatial service. By the end of this module, you will have demonstrated:
 

@@ -1,5 +1,5 @@
 site_name: Python Geospatial Engineering Practices
-site_description: Practical patterns and drills for high-quality Python development with geospatial data
+site_description: A practical prep curriculum for senior Python engineers
 theme:
   name: material
   palette:
@@ -20,8 +20,6 @@ plugins:
 - mkdocstrings:
     handlers:
       python:
-        paths:
-        - ..
         setup_commands:
         - import sys, os
         - sys.path.insert(0, os.path.abspath(".."))
@@ -49,16 +47,16 @@ nav:
   - Study Plan: study_plan.md
 - Training Modules:
   - Day 01 - Concurrency:
-    - Concurrency: day01_concurrency/index.md
+    - Overview: day01_concurrency/index.md
   - Day 02 - Oop:
-    - OOP: day02_oop/index.md
+    - Overview: day02_oop/index.md
   - Day 03 - Api:
-    - APIs: day03_api/index.md
+    - Overview: day03_api/index.md
   - Day 04 - Testing:
-    - Testing: day04_testing/index.md
+    - Overview: day04_testing/index.md
   - Day 05 - Data:
-    - Data: day05_data/index.md
+    - Overview: day05_data/index.md
   - Day 06 - Perf:
-    - Performance: day06_perf/index.md
+    - Overview: day06_perf/index.md
   - Day 07 - Mock:
-    - Mock Project: day07_mock/index.md
+    - Overview: day07_mock/index.md

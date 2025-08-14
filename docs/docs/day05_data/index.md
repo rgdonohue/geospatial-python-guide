@@ -1,6 +1,6 @@
 # Day 05 - Data
 
-## Graduate-Level Learning Objectives
+## Learning Objectives
 
 This module covers the sophisticated data processing techniques essential for enterprise geospatial systems, focusing on performance optimization, data serialization, and spatial indexing strategies used in production mapping and location intelligence platforms. By the end of this module, you will understand:
 

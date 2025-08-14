@@ -1,6 +1,6 @@
 # Day 03 - Api
 
-## Graduate-Level Learning Objectives
+## Learning Objectives
 
 This module covers enterprise-grade API design and implementation for geospatial services, focusing on scalability, reliability, and maintainability patterns used in production mapping and location-based systems. By the end of this module, you will understand:
 

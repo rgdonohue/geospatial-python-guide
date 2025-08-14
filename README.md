@@ -47,6 +47,6 @@ src/
 ## Docs Site (optional)
 Generate a MkDocs + Material site from this repo:
 - `python convert_to_mkdocs.py`
-- `cd python-prep-site && pip install -r requirements.txt && mkdocs serve`
+- `cd docs && pip install -r requirements.txt && mkdocs serve`
 
 See `PLAN.md` for goals per day, `AGENTS.md` for contributor guidelines, and `MOCK_TEST.md` for the final mock brief.

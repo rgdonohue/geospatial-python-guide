@@ -1,6 +1,6 @@
 # Day 01 - Concurrency
 
-## Graduate-Level Learning Objectives
+## Learning Objectives
 
 This module introduces the foundational concepts of asynchronous programming and concurrent I/O operations in the context of distributed geospatial systems. By the end of this module, you will understand:
 

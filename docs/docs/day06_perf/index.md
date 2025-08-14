@@ -1,6 +1,6 @@
 # Day 06 - Perf
 
-## Graduate-Level Learning Objectives
+## Learning Objectives
 
 This module covers advanced performance engineering and reliability practices essential for enterprise geospatial systems operating at scale. By the end of this module, you will understand:
 

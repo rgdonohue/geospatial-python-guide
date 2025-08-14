@@ -1,6 +1,6 @@
 # Day 04 - Testing
 
-## Graduate-Level Learning Objectives
+## Learning Objectives
 
 This module covers comprehensive testing strategies essential for enterprise geospatial systems, emphasizing quality engineering practices that ensure reliability, performance, and maintainability at scale. By the end of this module, you will understand:
 

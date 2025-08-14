@@ -8,7 +8,7 @@ from pathlib import Path
 import yaml
 
 class MkDocsConverter:
-    def __init__(self, src_dir="src", output_dir="python-prep-site"):
+    def __init__(self, src_dir="src", output_dir="docs"):
         self.src_dir = Path(src_dir)
         self.output_dir = Path(output_dir)
         self.docs_dir = self.output_dir / "docs"

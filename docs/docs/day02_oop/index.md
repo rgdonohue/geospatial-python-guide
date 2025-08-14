@@ -1,6 +1,6 @@
 # Day 02 - Oop
 
-## Graduate-Level Learning Objectives
+## Learning Objectives
 
 This module introduces enterprise-grade software architecture patterns essential for building scalable, maintainable geospatial data processing systems. By the end of this module, you will understand:
 
