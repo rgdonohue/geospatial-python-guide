@@ -20,9 +20,6 @@ plugins:
 - mkdocstrings:
     handlers:
       python:
-        setup_commands:
-        - import sys, os
-        - sys.path.insert(0, os.path.abspath(".."))
         options:
           show_source: true
           show_root_heading: true
@@ -48,15 +45,15 @@ nav:
 - Training Modules:
   - Day 01 - Concurrency:
     - Overview: day01_concurrency/index.md
-  - Day 02 - Oop:
+  - Day 02 - OOP:
     - Overview: day02_oop/index.md
-  - Day 03 - Api:
+  - Day 03 - API:
     - Overview: day03_api/index.md
   - Day 04 - Testing:
     - Overview: day04_testing/index.md
   - Day 05 - Data:
     - Overview: day05_data/index.md
-  - Day 06 - Perf:
+  - Day 06 - Performance:
     - Overview: day06_perf/index.md
   - Day 07 - Mock:
     - Overview: day07_mock/index.md
