@@ -1,0 +1,66 @@
+
+/* Brand-inspired colors */
+:root {
+    --md-primary-fg-color: #1e3a8a;
+    --md-accent-fg-color: #dc2626;
+    --brand-blue: #0050ff;
+    --brand-red: #ff0000;
+}
+
+/* Progress bar */
+.progress-bar {
+    width: 100%;
+    height: 25px;
+    background: #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 20px 0;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--brand-blue), var(--brand-red));
+    transition: width 0.5s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+}
+
+/* Code blocks */
+.highlight pre {
+    border-left: 4px solid var(--md-accent-fg-color);
+    border-radius: 4px;
+}
+
+/* Cards grid */
+.grid.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.grid.cards > * {
+    padding: 1rem;
+    border: 1px solid var(--md-default-fg-color--lightest);
+    border-radius: 8px;
+    transition: transform 0.2s;
+}
+
+.grid.cards > *:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Animation for checkboxes */
+.task-list-control:checked {
+    animation: checkmark 0.3s ease;
+}
+
+@keyframes checkmark {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
