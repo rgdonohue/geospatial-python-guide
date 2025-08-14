@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package road;
+
+message RoadSegment {
+  string id = 1;
+  string name = 2;
+  // WKB bytes or other encoding; for drill comparison, store as WKT string
+  string wkt_geometry = 3;
+  uint32 speed_limit = 4;
+}
+
+

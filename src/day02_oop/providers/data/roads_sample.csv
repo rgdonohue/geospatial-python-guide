@@ -1,0 +1,5 @@
+id,name,road_type,speed_limit
+R001,El Camino Real,arterial,50
+R002,Page Mill Rd,residential,40
+R003,US-101,highway,65
+
