@@ -1,5 +1,5 @@
 site_name: Python Geospatial Engineering Practices
-site_description: A practical prep curriculum for senior Python engineers
+site_description: Practical patterns and drills for high-quality Python development with geospatial data
 theme:
   name: material
   palette:
@@ -20,6 +20,8 @@ plugins:
 - mkdocstrings:
     handlers:
       python:
+        paths:
+        - ..
         setup_commands:
         - import sys, os
         - sys.path.insert(0, os.path.abspath(".."))
