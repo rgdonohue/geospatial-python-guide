@@ -1,68 +1,133 @@
-# Python Geospatial Engineering Practices
+# Python Geospatial Engineering Guide
 
-A practical, hands-on curriculum for software engineers working with geospatial data. Build real skills by implementing concurrency, clean provider abstractions, FastAPI services, testing strategies, data formats, and performance techniques that show up in production geospatial systems.
+Production-oriented geospatial curriculum for Python and backend engineers moving into spatial systems.
 
-Live docs: `https://rgdonohue.github.io/geospatial-python-guide`
+This guide is built around code, services, testing, query behavior, and debugging. It is not a GIS desktop course, and it is not a notebook-only tour.
 
-Who this is for:
-- Engineers moving into geospatial systems who want practical patterns (not toy examples)
-- Senior Python/Backend engineers who want fast drills with runnable code and tests
-- Teams standardizing on clear interfaces for providers, APIs, and data pipelines
+[Start with the Study Plan](study_plan.md){ .md-button .md-button--primary }
+[Open the API Module](day03_api/index.md){ .md-button }
+[Jump to the Capstone](day07_mock/index.md){ .md-button }
+
+## Why This Guide Exists
+
+Most geospatial learning material either:
+
+- assumes a GIS classroom workflow
+- stays too close to notebooks and one-off analysis
+- or jumps straight into architecture talk without enough runnable code
+
+This repo aims for a narrower path:
+
+- geospatial correctness first
+- clear provider and data boundaries
+- realistic storage and query thinking
+- FastAPI services and tile-style endpoints
+- testing, metrics, and performance work around actual code
+
+## Start Here
+
+<div class="grid cards" markdown>
+
+- **Study Plan**
+
+  Read the [study plan](study_plan.md) first. It defines the core path, what the repo supports now, and what is still planned expansion.
+
+- **Day 03: APIs and Tile Delivery**
+
+  The strongest current service-oriented module is [Day 03](day03_api/index.md). It is the best entry point if you want concrete FastAPI work.
+
+- **Day 07: Capstone**
+
+  The [capstone](day07_mock/index.md) is the portfolio-oriented end state: a small road-network query service with validation, tests, and performance notes.
+
+- **Day 04: Testing**
+
+  Use [Day 04](day04_testing/index.md) to see how API validation, content types, and geospatial edge cases should be tested.
+
+</div>
+
+## Who This Is For
+
+- Python and backend engineers entering geospatial systems
+- data engineers who need to work with spatial data, APIs, and query services
+- teams that want more disciplined geospatial service patterns than ad hoc scripts
+
+## What You Can Do In This Repo Today
+
+- run a bounded-concurrency tile-fetch benchmark
+- inspect provider patterns across multiple data shapes
+- run a small FastAPI app with tile-style and streamed-feature endpoints
+- expose Prometheus metrics from that app
+- run focused tests around API validation and concurrency behavior
+- inspect a simple road-network mock project and capstone brief
 
 ## Quick Start
-- Python 3.11+
-- Create venv: `python -m venv .venv && source .venv/bin/activate`
-- Install: `pip install -r requirements.txt`
-- Makefile (optional): `make install`, `make test`, `make run-api`, `make bench`, `make bench-local`
 
-Docs locally (optional):
-- `cd docs && pip install -r requirements.txt && mkdocs serve`
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
 
-## Project Structure (geospatial-focused modules)
+Useful commands:
+
+```bash
+# Run the Day 3 API
+uvicorn src.day03_api.app:app --reload
+
+# Run focused tests
+.venv/bin/python -m pytest -q src/day04_testing/tests/test_smoke.py
+.venv/bin/python -m pytest -q src/day04_testing/tests/test_day03_api_validation.py
+
+# Run the Day 1 benchmark
+python -m src.day01_concurrency.tile_fetcher --tile-count 50 --max-concurrency 20
+```
+
+Docs locally:
+
+```bash
+cd docs
+pip install -r requirements.txt
+mkdocs serve
+```
+
+## Suggested Route
+
+1. Read the [Study Plan](study_plan.md).
+2. Skim [Day 03](day03_api/index.md) and [Day 04](day04_testing/index.md) to see the current strongest code-backed path.
+3. Use [Day 01](day01_concurrency/index.md) as a boundary/integration drill, not as the conceptual start of geospatial learning.
+4. Finish by narrowing the [capstone](day07_mock/index.md) into something portfolio-worthy.
+
+## Current Status
+
+### Implemented now
+
+- concurrency drill with retries and bounded concurrency
+- provider examples for multiple data shapes
+- small FastAPI API with metrics
+- initial API and concurrency tests
+- road-network mock project
+
+### Planned next
+
+- stronger spatial correctness drills
+- more realistic storage and query work, with PostGIS as a core direction
+- better tile validation and tile delivery behavior
+- stronger capstone realism
+
+## Project Structure
 
 ```text
 src/
-├─ day01_concurrency/      # Async I/O and bounded concurrency
-│  ├─ tile_fetcher.py      # CLI benchmark with retries/timeouts
-│  └─ mock_tile_server.py  # Local FastAPI for safe latency/error simulation
-├─ day02_oop/              # Providers and clean interfaces
-│  └─ providers/
-│     ├─ base.py | factory.py | csv_provider.py | geojson_provider.py | mvt_provider.py
-├─ day03_api/              # FastAPI drills (tiles + bbox streaming, metrics)
-│  └─ app.py               # Tile + bbox streaming endpoints, metrics
-├─ day04_testing/          # Tests and examples
-│  └─ tests/
-│     ├─ test_smoke.py | test_day03_api_validation.py | test_concurrency_day01.py
-├─ day05_data/             # Data + geospatial (Protobuf, R-tree)
-│  └─ protobuf/road_segment.proto  # Example schema for road segments
-├─ day06_perf/             # Performance and observability
-└─ day07_mock/             # End-to-end mock project
-   └─ mock_test/
-      ├─ api.py | road_network.py | roads.csv
+├─ day01_concurrency/      # Async I/O and bounded concurrency drills
+├─ day02_oop/              # Provider boundaries and interface patterns
+├─ day03_api/              # FastAPI API drills (tiles, bbox streaming, metrics)
+├─ day04_testing/          # Focused tests for API and concurrency behavior
+├─ day05_data/             # Data and indexing examples
+├─ day06_perf/             # Performance and observability exercises
+└─ day07_mock/             # Capstone mock project
 ```
 
-## Run Examples
-- Day 1 benchmark: `python -m src.day01_concurrency.tile_fetcher --tile-count 50 --max-concurrency 20`
-- Local tiles (recommended): `make run-mock-tiles` then `make bench-local`
-- Day 3 API (dev): `uvicorn src.day03_api.app:app --reload` (docs at `/docs`, metrics at `/metrics`)
-- Day 7 mock API: `uvicorn src.day07_mock.mock_test.api:app --reload`
+## Live Docs
 
-## Testing
-- Run all: `pytest -q`
-- Targeted runs:
-  - `pytest -q src/day04_testing/tests/test_smoke.py`
-  - `pytest -q src/day04_testing/tests/test_day03_api_validation.py`
-  - `pytest -q src/day04_testing/tests/test_concurrency_day01.py`
-
-## Documentation
-- Live site: `https://rgdonohue.github.io/geospatial-python-guide`
-- Build locally:
-  - `python convert_to_mkdocs.py` (optional content refresh)
-  - `cd docs && pip install -r requirements.txt && mkdocs serve`
-  - Source markdown lives in `docs/content/`
-
-## Contributing
-- Issues and PRs welcome. Focus on clarity, runnable drills, and test coverage.
-- See `AGENTS.md` for contributor guidelines.
-
-See `PLAN.md` for goals per day and `MOCK_TEST.md` for the final mock brief.
+- Site: [rgdonohue.github.io/geospatial-python-guide](https://rgdonohue.github.io/geospatial-python-guide/)
