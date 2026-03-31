@@ -2,7 +2,7 @@
 
 A practical, hands-on curriculum for software engineers working with geospatial data. Build real skills by implementing concurrency, clean provider abstractions, FastAPI services, testing strategies, data formats, and performance techniques that show up in production geospatial systems.
 
-Live docs: `https://rgdonohue.github.io/geospatial-python-guide`
+Live docs: [rgdonohue.github.io/geospatial-python-guide](https://rgdonohue.github.io/geospatial-python-guide)
 
 Who this is for:
 - Engineers moving into geospatial systems who want practical patterns (not toy examples)
@@ -55,7 +55,7 @@ src/
   - `pytest -q src/day04_testing/tests/test_concurrency_day01.py`
 
 ## Documentation
-- Live site: `https://rgdonohue.github.io/geospatial-python-guide`
+- Live site: [rgdonohue.github.io/geospatial-python-guide](https://rgdonohue.github.io/geospatial-python-guide)
 - Build locally:
   - `python convert_to_mkdocs.py` (optional content refresh)
   - `cd docs && pip install -r requirements.txt && mkdocs serve`
