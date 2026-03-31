@@ -46,15 +46,15 @@ nav:
 - Training Modules:
   - Day 01 - Concurrency:
     - Overview: day01_concurrency/index.md
-  - Day 02 - OOP:
+  - Day 02 - Oop:
     - Overview: day02_oop/index.md
-  - Day 03 - API:
+  - Day 03 - Api:
     - Overview: day03_api/index.md
   - Day 04 - Testing:
     - Overview: day04_testing/index.md
   - Day 05 - Data:
     - Overview: day05_data/index.md
-  - Day 06 - Performance:
+  - Day 06 - Perf:
     - Overview: day06_perf/index.md
   - Day 07 - Mock:
     - Overview: day07_mock/index.md

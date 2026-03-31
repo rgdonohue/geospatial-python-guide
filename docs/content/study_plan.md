@@ -1,213 +1,320 @@
-# Python Geospatial Key Practices
+# Python Geospatial Engineering Study Plan
 
-### For Geospatial Engineering – Map Integration and Backend Systems
+## Audience
 
----
+This guide is for:
 
-## Prerequisites and Environment
+- Python and backend engineers moving into geospatial systems
+- data engineers who need to work with spatial data, APIs, and query services
+- engineers who want code, services, testing, and production-oriented drills rather than GIS desktop workflows
 
-- Python 3.11+
-- Use a virtualenv with pip (no conda). From the repo root:
-  - `python -m venv .venv && source .venv/bin/activate`
-  - `pip install -r requirements.txt`
-- Code scaffold lives under `src/` with one folder per day.
+Assumptions:
 
----
+- you already know Python, HTTP APIs, testing, and basic software design
+- you do not need beginner Python instruction
+- you may be new to CRS, geometry validity, tile systems, and spatial query behavior
 
-## Day 1 – Core Python + Concurrency
+## What You Will Build
 
-**Focus:** Async I/O patterns for high-throughput tile fetching and backpressure.
+By the end of the core path, you should be able to:
 
-**Concepts:**
-- Data structures and comprehensions; iterators/generators
-- `dataclasses` vs `NamedTuple`
-- Type hints and mypy-friendly APIs
-- `async`/`await`, task groups, backpressure with `asyncio.Semaphore`
+- validate geospatial inputs and document CRS and coordinate-order assumptions
+- define clean provider boundaries around spatial data formats
+- compare naive spatial filtering to indexed lookup
+- build a small FastAPI service for spatial queries and tile-style endpoints
+- use concurrency where it helps at I/O boundaries
+- test geo-specific edge cases instead of relying on smoke tests alone
+- measure latency, profile slow paths, and expose basic service metrics
+- complete a small road-network query service that is credible as portfolio work
 
-**Drill:**
-1. Implement async tile fetcher for `https://tile.openstreetmap.org/{z}/{x}/{y}.png`
-2. Run sequential vs concurrent benchmarks; add bounded concurrency
-3. Record results and observations
+## Core Path
 
-**Artifacts:** `src/day01_concurrency/`
+The core path is intentionally narrow:
 
-**Success Criteria:** Measurable speedup with concurrency; clean cancellation and timeout handling.
+1. Learn the correctness rules that keep geospatial systems from silently lying
+2. Put stable data contracts around formats and providers
+3. Work with realistic query patterns and indexing
+4. Build APIs and tile delivery on top of that foundation
+5. Add concurrency where it improves integrations and upstream access
+6. Harden what you built with testing, profiling, and observability
+7. Finish with a realistic capstone service
 
----
+## Module 1: Spatial Correctness for Engineers
 
-## Day 2 – OOP, Design Patterns & Project Structure
+**Purpose:** Make geospatial correctness the starting point, not a cleanup step.
 
-**Focus:** Clean abstractions for data providers.
+**Focus:**
 
-**Concepts:**
-- Abstract base classes, composition over inheritance
-- Factory and Strategy patterns
-- Package layout, `__init__.py`, tests organization
+- lon/lat vs lat/lon
+- WGS84 vs Web Mercator
+- degrees vs meters
+- bbox semantics
+- geometry validity and precision
 
-**Drill:**
-1. Define `MapDataProvider` ABC
-2. Implement `GeoJSONProvider` and `MVTProvider`
-3. Simple factory to select provider by content type
+**What you do:**
 
-**Artifacts:** `src/day02_oop/`
+- validate bbox inputs and coordinate ranges
+- inspect simple geometries with Shapely
+- write down project conventions for CRS and coordinate order
+- trace a few common failure modes before moving on
 
-**Success Criteria:** Providers interchangeable behind a single interface with minimal tests.
+**Current repo anchor:**
 
----
+- this module is mostly a framing and correctness layer for the rest of the repo
+- the capstone brief already includes important conventions in `dev-docs/MOCK_TEST.md`
 
-## Day 3 – Production-Ready APIs
+**Why it comes first:**
 
-**Focus:** Robust FastAPI endpoints for spatial data.
+- bad geospatial assumptions make every later module wrong, even if the code is otherwise clean
 
-**Concepts:**
-- Pydantic models, validation, response models
-- Streaming responses, ranged responses
-- OpenAPI docs quality
+## Module 2: Data Contracts and Provider Boundaries
 
-**Drill:**
-1. Implement `/tiles/{z}/{x}/{y}.mvt` with validation and streaming from disk
-2. Implement `/stream-features` filtering large GeoJSON by bbox; stream NDJSON
+**Purpose:** Keep data-source-specific logic from leaking through the whole system.
 
-**Artifacts:** `src/day03_api/`
+**Focus:**
 
-**Success Criteria:** Endpoints validated, documented, and locally runnable.
+- provider interfaces
+- feature shape consistency
+- IDs, schema normalization, and boundary error handling
+- format-specific tradeoffs across CSV, GeoJSON, and MVT-style outputs
 
----
+**What you build:**
 
-## Day 4 – Testing & Integration
+- provider implementations behind a common interface
+- tests for lookup, streaming, and interface behavior
+- clearer expectations for what a provider returns
 
-**Focus:** TDD flow and integration with external services.
+**Current repo anchor:**
 
-**Concepts:**
-- `pytest` fixtures, parametrization, and mocking
-- Property-based testing with `hypothesis`
-- Basic load testing and latency measurement
+- `src/day02_oop/`
 
-**Drill:**
-1. Unit tests for Day 3 endpoints using `TestClient`
-2. Integration tests with sample data
-3. Light load test against `/tiles` and `/stream-features`
+**Why it comes second:**
 
-**Artifacts:** `src/day04_testing/`
+- once correctness rules are clear, the next job is to define clean boundaries before adding storage or API complexity
 
-**Success Criteria:** >80% coverage on core code; latency numbers captured.
+## Module 3: Storage and Querying
 
----
+**Purpose:** Move beyond file scans toward realistic spatial query behavior.
 
-## Day 5 – Data Processing, Geospatial & Automotive Standards
+**Focus:**
 
-**Focus:** Vector tiles, coordinate systems, efficient spatial queries.
+- bbox query cost
+- spatial indexing basics
+- R-tree as the current runnable path
+- PostGIS as the next core production direction
 
-**Concepts:**
-- Shapely, CRS (WGS84, Web Mercator), local ENU basics
-- Mapbox Vector Tile; Protobuf wire format
-- Spatial indexing with R-tree
+**What you build:**
 
-**Drills:**
-1. Protobuf: define `RoadSegment` schema, serialize/deserialize, compare to JSON
-2. Spatial index: build R-tree, query bbox vs naive loop, benchmark
+- a small indexed query example
+- a benchmark comparing naive filtering to indexed lookup
+- a clearer path from file-backed examples to database-backed geo services
 
-**Artifacts:** `src/day05_data/`
+**Current repo anchor:**
 
-**Success Criteria:** Clear benchmarks; correctness validated by cross-checks.
+- `src/day05_data/`
 
----
+**Current reality:**
 
-## Day 6 – Performance, Reliability & Observability
+- the repo currently supports file- and index-oriented examples better than it supports full PostGIS workflows
+- PostGIS should be treated here as the next planned realism step, not as something already fully implemented
 
-**Focus:** Production-grade reliability patterns.
+**Why it comes third:**
 
-**Concepts:**
-- `cProfile`, `timeit`, memory profiling
-- Connection pooling and retries with backoff
-- Circuit breaker; Prometheus metrics
+- APIs should sit on top of realistic query and storage assumptions, not raw in-memory scans alone
 
-**Drill:**
-1. Add Prometheus metrics to Day 3 API (request count, latency, cache hit/miss)
-2. Simulate upstream failure and return degraded response
-3. Profile and optimize a slow path from Day 5
+## Module 4: APIs and Tile Delivery
 
-**Artifacts:** `src/day06_perf/`
+**Purpose:** Build service endpoints that look like real geospatial backend work.
 
-**Success Criteria:** Metrics exposed; graceful degradation demonstrated; perf delta measured.
+**Focus:**
 
----
+- FastAPI validation for spatial inputs
+- streaming feature responses
+- tile path validation and tile response behavior
+- pagination, limits, content types, and cache-friendly API habits
 
-## Day 7 – Full Mock Screening
+**What you build:**
 
-**Focus:** Simulate test conditions end-to-end.
+- a bbox endpoint with validation
+- a tile-style endpoint with stronger path checking
+- minimal service metrics
+- better API behavior around response shape and input limits
 
-**Tasks:**
-- Parse CSV/GeoJSON; filter by bbox & attribute
-- Serve results via FastAPI; unit tests; README
-- Timebox: 90 minutes; conduct post-mortem
+**Current repo anchor:**
 
-**Artifacts:** `src/day07_mock/mock_test/` (+ see `MOCK_TEST.md`)
+- `src/day03_api/`
 
-**Success Criteria:** Working app with tests and clear documentation in the timebox.
+**Current reality:**
 
----
+- the repo already has a small FastAPI app and metrics endpoint
+- tile serving is still basic and should be hardened rather than oversold
 
-## Daily Time Allocation
+**Why it comes fourth:**
 
-- 60 min: Focused concept review
-- 120 min: Coding drills
-- 15 min: Industry reading
+- after correctness, provider boundaries, and query behavior are in place, API design becomes much more grounded
 
----
+## Module 5: Concurrency and External Integrations
 
-## Key Resources
+**Purpose:** Use concurrency where it pays off: upstream calls, ingestion, and I/O-heavy boundaries.
 
-- FastAPI Docs
-- Pytest Docs
-- Mapbox Vector Tile Spec
-- PostGIS in Action
-- Fluent Python
+**Focus:**
 
-## Training Modules
+- async I/O
+- bounded concurrency
+- retries, backoff, and timeouts
+- respecting upstream limits
 
-### Day 01 – Concurrency
-- **Overview**: [Day 01](day01_concurrency/index.md)
-- **Code**: [src/day01_concurrency](https://github.com/rgdonohue/geospatial-python-guide/tree/main/src/day01_concurrency)
-- **Description**: This module introduces the foundational concepts of asynchronous programming and concurrent I/O operations in the context of distributed geospatial systems. By the end of this module, you will understand:
+**What you build:**
 
-### Day 02 – Oop
-- **Overview**: [Day 02](day02_oop/index.md)
-- **Code**: [src/day02_oop](https://github.com/rgdonohue/geospatial-python-guide/tree/main/src/day02_oop)
-- **Description**: This module introduces enterprise-grade software architecture patterns essential for building scalable, maintainable geospatial data processing systems. By the end of this module, you will understand:
+- a sequential vs concurrent fetch comparison
+- retry and backoff behavior under controlled failures
+- a clearer mental model for when async helps and when it does not
 
-### Day 03 – Api
-- **Overview**: [Day 03](day03_api/index.md)
-- **Code**: [src/day03_api](https://github.com/rgdonohue/geospatial-python-guide/tree/main/src/day03_api)
-- **Description**: This module covers enterprise-grade API design and implementation for geospatial services, focusing on scalability, reliability, and maintainability patterns used in production mapping and location-based systems. By the end of this module, you will understand:
+**Current repo anchor:**
 
-### Day 04 – Testing
-- **Overview**: [Day 04](day04_testing/index.md)
-- **Code**: [src/day04_testing](https://github.com/rgdonohue/geospatial-python-guide/tree/main/src/day04_testing)
-- **Description**: This module covers comprehensive testing strategies essential for enterprise geospatial systems, emphasizing quality engineering practices that ensure reliability, performance, and maintainability at scale. By the end of this module, you will understand:
+- `src/day01_concurrency/`
 
-### Day 05 – Data
-- **Overview**: [Day 05](day05_data/index.md)
-- **Code**: [src/day05_data](https://github.com/rgdonohue/geospatial-python-guide/tree/main/src/day05_data)
-- **Description**: This module covers the sophisticated data processing techniques essential for enterprise geospatial systems, focusing on performance optimization, data serialization, and spatial indexing strategies used in production mapping and location intelligence platforms. By the end of this module, you will understand:
+**Why it comes here:**
 
-### Day 06 – Perf
-- **Overview**: [Day 06](day06_perf/index.md)
-- **Code**: [src/day06_perf](https://github.com/rgdonohue/geospatial-python-guide/tree/main/src/day06_perf)
-- **Description**: This module covers advanced performance engineering and reliability practices essential for enterprise geospatial systems operating at scale. By the end of this module, you will understand:
+- concurrency is important, but it should support a geospatial system you already understand rather than act as the conceptual entry point
 
-### Day 07 – Mock
-- **Overview**: [Day 07](day07_mock/index.md)
-- **Code**: [src/day07_mock](https://github.com/rgdonohue/geospatial-python-guide/tree/main/src/day07_mock)
-- **Description**: This capstone project synthesizes all concepts from the previous modules into a comprehensive enterprise-grade geospatial service. By the end of this module, you will have demonstrated:
+## Module 6: Testing Geospatial Systems
 
-## Getting Started
+**Purpose:** Make spatial correctness and service behavior testable.
 
-1. **Clone and setup**: `git clone <repo> && cd geospatial-python-guide`
-2. **Install dependencies**: `cd docs && pip install -r requirements.txt`
-3. **View docs locally**: `mkdocs serve`
-4. **Start with Day 1**: Begin with the concurrency module and work through each day
+**Focus:**
 
-## Contributing
+- API validation tests
+- unit tests for provider and query logic
+- geo-specific edge cases
+- confidence in bbox, connectivity, and response-contract behavior
 
-Found an issue or have an improvement? Open a PR or issue on GitHub.
+**What you build:**
+
+- tests for provider behavior
+- tests for API validation and content types
+- stronger checks around bbox invariants and road-network logic
+
+**Current repo anchor:**
+
+- `src/day04_testing/`
+
+**Important note:**
+
+- testing should happen throughout the guide
+- this module exists to concentrate the patterns, not to imply that earlier modules should wait to be tested
+
+**Why it comes here:**
+
+- by this point there are enough concrete artifacts to test in a meaningful way
+
+## Module 7: Performance and Observability
+
+**Purpose:** Measure and improve systems that already exist.
+
+**Focus:**
+
+- latency and throughput
+- profiling and memory inspection
+- basic metrics and structured logs
+- understanding slow paths and cache behavior
+
+**What you build:**
+
+- metrics around API paths
+- a small before/after performance comparison
+- a profiling pass on one slow path
+
+**Current repo anchor:**
+
+- `src/day06_perf/`
+
+**Current reality:**
+
+- the strongest near-term observability path in this repo is basic metrics, profiling, and logging
+- avoid reading this module as a promise of a full production observability stack
+
+**Why it comes here:**
+
+- performance work is most useful when there is already a service or query path worth measuring
+
+## Module 8: Capstone
+
+**Purpose:** Integrate the core path into one realistic backend geospatial project.
+
+**Project:**
+
+- road-network query service
+
+**Minimum scope:**
+
+- load and validate road data
+- support bbox queries with pagination
+- support connected-road lookup
+- support a small update path with validation
+- include tests, documentation, and a brief performance note
+
+**Current repo anchor:**
+
+- `src/day07_mock/mock_test/`
+- `dev-docs/MOCK_TEST.md`
+
+**Why this capstone:**
+
+- it is small enough to finish
+- it exercises correctness, querying, API design, testing, and operational judgment
+- it is closer to real backend geospatial work than a notebook-only project
+
+## Elective / Advanced Topics
+
+These are useful extensions, but they should not dominate the core path:
+
+- deeper PostGIS work: loading, indexing, EXPLAIN plans, and database-backed APIs
+- GeoParquet and Arrow workflows
+- tile packaging and delivery formats beyond the current repo path
+- raster, COG, and STAC workflows
+- H3 or S2
+- deployment packaging and containerization
+- authentication, authorization, and rate limiting
+- production debugging labs with richer observability tooling
+
+Use these after the core path is stable and code-backed.
+
+## What Is Implemented Now vs Planned Expansion
+
+### Implemented now
+
+- async tile fetching with retries, bounded concurrency, and a mock tile server
+- provider examples for several formats
+- a small FastAPI app with basic spatial endpoints and metrics
+- initial tests around API behavior and concurrency
+- a simple road-network mock project
+
+### Planned expansion
+
+- stronger correctness-specific exercises at the start of the curriculum
+- more realistic storage and query work, with PostGIS as a core next step
+- better tile validation and delivery behavior
+- stronger provider consistency and streaming behavior
+- more substantial testing around geo edge cases
+- a hardened capstone with clearer performance expectations
+
+Rule for future additions:
+
+- if a topic is presented as core, it should map to runnable code in this repo or be explicitly labeled as planned expansion
+
+## Suggested Pace
+
+- work one module at a time
+- spend more time implementing and testing than reading
+- keep notes on assumptions, tradeoffs, and geo-specific mistakes you corrected
+- treat the capstone as the place where portfolio signal is created
+
+## Key References
+
+- FastAPI documentation
+- Pytest documentation
+- Shapely documentation
+- PostGIS documentation
+- Mapbox Vector Tile specification
+- GeoParquet specification

@@ -14,3 +14,12 @@ def test_stream_features_invalid_bbox():
     assert resp.status_code == 400
 
 
+def test_stream_features_bounded_smoke():
+    client = TestClient(app)
+    resp = client.get(
+        "/stream-features",
+        params={"min_lat": 0, "min_lon": 0, "max_lat": 1, "max_lon": 1, "limit": 1},
+    )
+    assert resp.status_code == 200
+    assert resp.text == "{}\n"
+
